@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD с Supabase</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>CRUD операции с Supabase</h1>
+    
+    <!-- Поиск -->
+    <input type="text" id="searchInput" placeholder="Поиск по имени...">
+    
+    <table id="usersTable">
+        <thead>
+            <tr>
+                <th>Имя</th>
+                <th>Email</th>
+                <th>Возраст</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody id="usersBody">
+            <!-- Данные будут загружаться сюда -->
+        </tbody>
+    </table>
+
+    <h2>Добавить пользователя</h2>
+    <form id="addUserForm">
+        <input type="text" id="name" placeholder="Имя" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="number" id="age" placeholder="Возраст" required min="0">
+        <button type="submit">Добавить</button>
+    </form>
+
+    <script type="module">
+      import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js';
+
+      const supabaseUrl = 'https://wbkqeakwfrhqrsuafakq.supabase.co';
+      const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6India3FlYWt3ZnJocXJzdWFmYWtxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgyNjY1NTIsImV4cCI6MjA1Mzg0MjU1Mn0.kTeIU_bUFAYepxxkbju4FbZxGcYiJcOJsk5Fgd8yMU4'; // замените на ваш актуальный ключ
+      const supabase = createClient(supabaseUrl, supabaseKey);
+
+      // DOM элементы
+      const usersTableBody = document.getElementById('usersBody');
+      const addUserForm = document.getElementById('addUserForm');
+      const searchInput = document.getElementById('searchInput');
+
+      // Массив для хранения всех пользователей
+      let allUsers = [];
+
+      // Функция для получения пользователей
+      async function getUsers() {
+          const { data, error } = await supabase.from('users').select();
+          if (error) {
+              console.error('Ошибка получения данных:', error.message);
+              return;
+          }
+          console.log('Данные пользователей:', data); // Выводим данные в консоль для проверки
+          allUsers = data;  // Сохраняем все данные пользователей
+          renderUsers(allUsers);  // Отображаем всех пользователей
+      }
+
+      // Функция для отображения пользователей в таблице
+      function renderUsers(users) {
+          usersTableBody.innerHTML = ''; // Очистка таблицы
+          users.forEach(user => {
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                  <td>${user.name}</td>
+                  <td>${user.email}</td>
+                  <td>${user.age}</td>
+                  <td>
+                      <button class="edit-btn" data-id="${user.id}">Изменить</button>
+                      <button class="delete-btn" data-id="${user.id}">Удалить</button>
+                  </td>
+              `;
+              usersTableBody.appendChild(row);
+          });
+
+          // Привязываем события для кнопок "Изменить" и "Удалить"
+          document.querySelectorAll('.edit-btn').forEach(button => {
+              button.addEventListener('click', (e) => {
+                  const id = e.target.getAttribute('data-id');
+                  editUser(id);
+              });
+          });
+
+          document.querySelectorAll('.delete-btn').forEach(button => {
+              button.addEventListener('click', (e) => {
+                  const id = e.target.getAttribute('data-id');
+                  deleteUser(id);
+              });
+          });
+      }
+
+      // Функция для поиска пользователей по имени
+      function searchUsers() {
+          const searchTerm = searchInput.value.toLowerCase();
+
+          // Фильтрация всех пользователей, имена которых содержат строку поиска
+          const filteredUsers = allUsers.filter(user =>
+              user.name.toLowerCase().includes(searchTerm)
+          );
+
+          // Отображаем отфильтрованных пользователей
+          renderUsers(filteredUsers);
+      }
+
+      // Привязываем функцию поиска к полю ввода
+      searchInput.addEventListener('input', searchUsers);
+
+      addUserForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const age = parseInt(document.getElementById('age').value);
+
+        // Проверка на отрицательный возраст
+        if (age < 0) {
+            alert('Возраст не может быть отрицательным!');
+            return;
+        }
+
+        const { data, error } = await supabase
+            .from('users')
+            .insert([{ name, email, age }]);
+
+        if (error) {
+            console.error('Ошибка добавления пользователя:', error.message);
+        } else {
+            getUsers(); // Перезагружаем список
+              // Очищаем поля формы после добавления пользователя
+        document.getElementById('name').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('age').value = '';
+        }
+      });
+
+      // Функция для удаления пользователя
+      async function deleteUser(id) {
+          const { error } = await supabase.from('users').delete().match({ id });
+          if (error) {
+              console.error('Ошибка удаления пользователя:', error.message);
+          } else {
+              getUsers(); // Перезагружаем список
+          }
+      }
+
+      // Функция для редактирования пользователя
+async function editUser(id) {
+    const name = prompt('Введите новое имя:');
+    const email = prompt('Введите новый email:');
+    const ageInput = prompt('Введите новый возраст:');
+    const age = parseInt(ageInput); // Преобразуем в число
+
+    // Проверка на отрицательный возраст
+    if (isNaN(age) || age < 0) {
+        alert('Возраст не может быть отрицательным или некорректным!');
+        return; // Прерываем выполнение функции, если возраст некорректен
+    }
+
+    const { error } = await supabase
+        .from('users')
+        .update({ name, email, age })
+        .match({ id });
+
+    if (error) {
+        console.error('Ошибка редактирования пользователя:', error.message);
+    } else {
+        getUsers(); // Перезагружаем список
+    }
+}
+
+
+      // Инициализация
+      getUsers();
+    </script>
+</body>
+</html>

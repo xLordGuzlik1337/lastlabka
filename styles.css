@@ -1,0 +1,105 @@
+/* Основной стиль для тела страницы */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f4f4f9;
+    color: #333;
+    margin: 20px;
+    padding: 0;
+}
+
+/* Заголовок */
+h1 {
+    text-align: center;
+    font-size: 36px;
+    color: #4CAF50;
+    margin-bottom: 20px;
+}
+
+/* Стили для всех форм ввода */
+input[type="text"], input[type="email"], input[type="number"] {
+    width: calc(100% - 22px);
+    margin: 10px 0;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    background-color: #fff;
+    transition: border-color 0.3s ease;
+}
+
+/* Эффект при фокусировке на поле ввода */
+input[type="text"]:focus, input[type="email"]:focus, input[type="number"]:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+/* Кнопки */
+button {
+    padding: 12px 20px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Эффект при наведении на кнопки */
+button:hover {
+    background-color: #45a049;
+}
+
+/* Стиль таблицы */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 30px;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Стиль для строк таблицы, ячеек и заголовков */
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 12px 20px;
+    text-align: left;
+    font-size: 16px;
+}
+
+/* Заголовки таблицы */
+th {
+    background-color: #f2f2f2;
+    color: #4CAF50;
+    font-weight: bold;
+}
+
+/* Стили для кнопок в ячейках таблицы */
+td button {
+    padding: 8px 14px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin: 2px;
+}
+
+/* Эффект при наведении на кнопки в таблице */
+td button:hover {
+    background-color: #e53935;
+}
+
+/* Стиль для пустых строк в таблице */
+td[colspan="4"] {
+    text-align: center;
+    color: #888;
+    font-style: italic;
+    padding: 15px;
+}
+
